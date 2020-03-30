@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
-	"math"
-	"regexp"
-	"strconv"
+	//"math"
+	//"regexp"
+	//"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/shirou/gopsutil/process"
+	//"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
 )
 
 
@@ -22,6 +22,35 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request){
 
 }
 
+/**
+*	Función que sirve para mandar la información de los procesos que están corriendo actualmente.
+*	Esta ruta se llama desde la vista de index.html
+*/
+func datosProcesosHandler(response http.ResponseWriter, request *http.Request) {
+
+	response.Header().Set("Content-Type","application/json")
+	response.WriteHeader(http.StatusOK)
+
+	type struct_proceso struct {
+		Total float64
+		Consumida float64
+		Porcentaje float64
+	}
+
+	datos := struct_proceso{
+		Total : 4.0,
+		Consumida : 10.0,
+		Porcentaje : 5.0,
+	}
+	
+
+
+	datos_json , _ := json.Marshal(datos)
+
+	response.Write(datos_json)
+
+
+}
 
 
 /**
@@ -50,7 +79,7 @@ func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 	}
 
 
-	datos := MEMORIA{Total : 100, Consumida : 80, Porcentaje : 24.3}
+	datos := MEMORIA{Total : 100.0, Consumida : 80.0, Porcentaje : 24.3}
 
 	datos_json , _ := json.Marshal(datos)
 
