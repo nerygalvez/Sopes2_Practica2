@@ -17,15 +17,25 @@
 *   #define EXIT_ZOMBIE		        32
 */
 
+#include <string.h>
+#include <linux/module.h> 
 
-#include <linux/fs.h>
-#include <linux/init.h>
 #include <linux/kernel.h>
+
+#include <linux/init.h>
+
+#include <linux/list.h>
+#include <linux/types.h>
+#include <linux/slab.h>
 #include <linux/sched.h>
-#include <linux/module.h>
+#include <linux/string.h>
+#include <linux/fs.h>
 #include <linux/seq_file.h>
 #include <linux/proc_fs.h>
-#include <linux/list.h>
+#include <asm/uaccess.h> 
+#include <linux/hugetlb.h>
+#include <linux/sched/signal.h>
+#include <linux/sched.h>
 
 #define FileProc "procesos_201403525"
 #define Carne "201403525"
@@ -36,40 +46,41 @@
 int contador_procesos = 0; //Para ver cuántos procesos hay
 int ejecucion = 0, suspendidos = 0, detenidos = 0, zombies = 0; //Para contar los tipos de procesos
 
-static char * obtener_estado(int estado){
+static void obtener_estado(int estado, char cadena_estado[30]){
     contador_procesos++; //Aumento un proceso
 
     if (estado == 0){
             //seq_printf(m, "\"Ejecutandose\"}");
             ejecucion++;
-            return "Running";
+            strcpy(cadena_estado, "Running");
     }else if (estado == 1){
             //seq_printf(m, "\"Hibernado\"}");
             suspendidos++;
-            return "Sleeping";
+            strcpy(cadena_estado, "Sleeping");
     }else if (estado == 2){
             //seq_printf(m, "\"U\"}");
             suspendidos++;
-            return "Sleeping";
+            strcpy(cadena_estado, "Sleeping");
     }else if (estado == 4){
             //seq_printf(m, "\"Detenido\"}");
             detenidos++;
-            return "Stopped";
+            strcpy(cadena_estado, "Stopped");
     }else if (estado == 8){
             //seq_printf(m, "\"T\"}");
             detenidos++;
-             return "Stopped";
+            strcpy(cadena_estado, "Stopped");
     }else if (estado == 16){
             //seq_printf(m, "\"Muerto\"}");
             detenidos++;
-             return "Stopped";
+            strcpy(cadena_estado, "Stopped");
     }else if (estado == 32){
             //seq_printf(m, "\"Zombie\"}");
             zombies++;
-             return "Zombie";
+            strcpy(cadena_estado, "Zombie");
     }
     zombies++;
     return "Zombie"; //Si no es ninguno devuelvo uno por defecto
+    strcpy(cadena_estado, "Running");
 }
 
 
@@ -93,8 +104,10 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
             seq_printf(m, ",\n");
         
         //Inicio del proceso
+        char cadena_estado[30] = "";
+        obtener_estado(task->state, cadena_estado);
         seq_printf(m, "\t\t{\"PID\":%d , \"Nombre\":\"%s\" , \"Usuario\":%d, \"Ram\":%llu , \"Cpu\":%d , \"Estado\":\"%s\"" ,
-                   task->pid, task->comm, task->cred->uid, task->acct_vm_mem1, task->cpuset_mem_spread_rotor, obtener_estado(task->state));
+                   task->pid, task->comm, task->cred->uid, task->acct_vm_mem1, task->cpuset_mem_spread_rotor, cadena_estado);
 
         //Ahora veo los hijos del proceso
         int contador_hijos = 0;
@@ -107,8 +120,9 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
             task_child = list_entry(list, struct task_struct, sibling);
 
             //Inicio del proceso
+            obtener_estado(task_child->state, cadena_estado);
             seq_printf(m, "\t\t\t\t{\"PID\":%d , \"Nombre\":\"%s\" , \"Usuario\":%d, \"Ram\":%llu , \"Cpu\":%d , \"Estado\":\"%s\"" ,
-                   task_child->pid, task_child->comm, task_child->cred->uid, task_child->acct_vm_mem1, task_child->cpuset_mem_spread_rotor, obtener_estado(task_child->state));
+                   task_child->pid, task_child->comm, task_child->cred->uid, task_child->acct_vm_mem1, task_child->cpuset_mem_spread_rotor, cadena_estado);
 
             seq_printf(m, ",\"Hijos\" : [] }"); //fin del proceso hijo
 

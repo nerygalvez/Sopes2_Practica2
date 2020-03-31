@@ -1,6 +1,6 @@
 /**
 *
-*	Creando el modulo de memoria
+*	Creando el modulo de cpu
 *
 */
 
