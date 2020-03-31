@@ -67,7 +67,7 @@ func memoriaHandler(response http.ResponseWriter, request *http.Request) {
 /**
 *	Función que lee el archivo que contiene la información de la memoria RAM
 */
-func leerRAM(ruta string)(contenido string){
+func leerRAM(ruta string)(cadena_contenido string){
 
 	bytesLeidos, err := ioutil.ReadFile(ruta)
 	if err != nil {
