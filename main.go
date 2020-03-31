@@ -9,7 +9,7 @@ import (
 	//"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
+	//"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
 
 	"io/ioutil"
 )
@@ -33,40 +33,6 @@ func procesosPageHandler(response http.ResponseWriter, request *http.Request){
 	http.ServeFile(response, request, "procesos.html") //Muestro la página de los procesos
 
 }
-
-/**
-*	Función que me devuelve el String completo del estado de un proceso
-*	R: Running S: Sleep T: Stop I: Idle Z: Zombie W: Wait L: Lock
-*/
-func obtenerEstado(caracter string)(estado string){
-
-	if caracter == "R"{
-		cantidadRunning+=1
-		return "Running"
-	}else if caracter == "S"{
-		cantidadSleeping+=1
-		return "Sleep"
-	}else if caracter == "T"{
-		cantidadStoped+=1
-		return "Stop"
-	}else if caracter == "I"{
-		return "Idle"
-	}else if caracter == "Z"{
-		cantidadZombie+=1
-		return "Zombie"
-	}else if caracter == "W"{
-		return "Wait"
-	}else if caracter == "L"{
-		return "Lock"
-	}
-
-	//Retorno uno de error por si no entrara a alguno arriba
-	return "Estado indefinido"
-}
-
-
-
-
 
 /**
 *	Función que lee el archivo que contiene la información de la memoria RAM
