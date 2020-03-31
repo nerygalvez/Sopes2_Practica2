@@ -60,13 +60,13 @@ func leerProcesos(ruta string)(cadena_contenido string){
 func datosProcesosHandler(response http.ResponseWriter, request *http.Request) {
 
 	type PROCESO struct{
-		PID int32
-		Nombre string
-		Usuario string
-		Ram float64
-		Cpu float64
-		Estado string
-		Hijos [] PROCESO
+		PID int32 `json:"PID"`
+		Nombre string `json:"Nombre"`
+		Usuario float64 `json:"Usuario"`
+		Ram float64 `json:"Ram"`
+		Cpu float64 `json:"Cpu"`
+		Estado string `json:"Estado"`
+		Hijos [] PROCESO `json:"Hijos"`
 	}
 
 	type struct_datos struct{
