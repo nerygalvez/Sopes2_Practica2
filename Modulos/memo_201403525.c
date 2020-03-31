@@ -24,8 +24,8 @@
 #define FileProc "memo_201403525"
 #define Carne "201403525"
 #define Nombre "Nery Gonzalo Galvez Gomez"
-#define SO "Debian 9 Linux 5.2.14"
-#define Curso "Sistemas Operativos 1"
+#define SO "Ubuntu 18.04.4 LTS"
+#define Curso "Sistemas Operativos 2"
 
 
 
@@ -45,8 +45,8 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
         */
 
         //Aquí voy a escribir el archivo con formato json
-        seq_printf(m, "{\n\"Total\" : %8lu \n", S(i.totalram));
-        seq_printf(m, ", \"Consumida\" : %8lu \n", S(i.totalram) - S(i.freeram));
+        seq_printf(m, "{\n\"Total\" : %8lu \n", S(i.totalram)/1000);
+        seq_printf(m, ", \"Consumida\" : %8lu \n", (S(i.totalram) - S(i.freeram))/1000);
         seq_printf(m, ", \"Porcentaje\" : %8lu \n}",100 - (S(i.freeram)*100/S(i.totalram)));      
         
         return 0;

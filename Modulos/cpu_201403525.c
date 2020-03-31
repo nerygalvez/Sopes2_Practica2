@@ -28,8 +28,8 @@
 #define FileProc "cpu_201403525"
 #define Carne "201403525"
 #define Nombre "Nery Gonzalo Galvez Gomez"
-#define SO "Debian 9 Linux 5.2.14"
-#define Curso "Sistemas Operativos 1"
+#define SO "Ubuntu 18.04.4 LTS"
+#define Curso "Sistemas Operativos 2"
 
 struct task_struct *task;
 struct task_struct *task_child;
