@@ -9,7 +9,7 @@ import (
 	//"strconv"
 
 	"github.com/gorilla/mux"
-	//"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
+	"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
 
 	"io/ioutil"
 )
@@ -24,25 +24,111 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request){
 
 }
 
+
+/**
+*	Función que me muestra la página de los procesos
+*/
+func procesosPageHandler(response http.ResponseWriter, request *http.Request){
+
+	http.ServeFile(response, request, "procesos.html") //Muestro la página de los procesos
+
+}
+
+/**
+*	Función que me devuelve el String completo del estado de un proceso
+*	R: Running S: Sleep T: Stop I: Idle Z: Zombie W: Wait L: Lock
+*/
+func obtenerEstado(caracter string)(estado string){
+
+	if caracter == "R"{
+		cantidadRunning+=1
+		return "Running"
+	}else if caracter == "S"{
+		cantidadSleeping+=1
+		return "Sleep"
+	}else if caracter == "T"{
+		cantidadStoped+=1
+		return "Stop"
+	}else if caracter == "I"{
+		return "Idle"
+	}else if caracter == "Z"{
+		cantidadZombie+=1
+		return "Zombie"
+	}else if caracter == "W"{
+		return "Wait"
+	}else if caracter == "L"{
+		return "Lock"
+	}
+
+	//Retorno uno de error por si no entrara a alguno arriba
+	return "Estado indefinido"
+}
+
 /**
 *	Función que sirve para mandar la información de los procesos que están corriendo actualmente.
-*	Esta ruta se llama desde la vista de index.html
+*	Esta ruta se llama desde la vista de procesos.html
 */
+type PROCESO struct{
+	PID int32
+	Usuario string
+	Estado string
+	Memoria float32
+	Nombre string
+	Proceso *process.Process
+}
+type struct_datos struct{
+	TotalProcesos int
+	TotalEjecucion int
+	TotalSuspendidos int
+	TotalDetenidos int
+	TotalZombie int
+	Procesos []PROCESO
+}
+
+var cantidadRunning, cantidadSleeping, cantidadStoped, cantidadZombie int
+
+
+var arreglo_procesos [] PROCESO
 func datosProcesosHandler(response http.ResponseWriter, request *http.Request) {
+
+	//Reinicio mis contadores
+	cantidadRunning = 0
+	cantidadSleeping = 0
+	cantidadStoped = 0
+	cantidadZombie = 0
+
+
+	//var arreglo_procesos [] PROCESO //Defino un arreglo donde voy a poner a todos los procesos
+	arreglo_procesos = nil //Vacío el arreglo
+
+
+	lista_procesos,_ := process.Processes()
+	//fmt.Println(lista_procesos)
+
+
+	for _ , p2 := range lista_procesos{
+		usuario, _ := p2.Username() //Return value could be one of these. R: Running S: Sleep T: Stop I: Idle Z: Zombie W: Wait L: Lock
+		estado, _ := p2.Status() //Return value could be one of these. R: Running S: Sleep T: Stop I: Idle Z: Zombie W: Wait L: Lock
+		memoria, _ := p2.MemoryPercent()
+		nombre , _ := p2.Name()
+		
+		//Agrego el nuevo proceso al arreglo
+		arreglo_procesos = append(arreglo_procesos, PROCESO{PID : p2.Pid, Usuario : usuario, Estado : obtenerEstado(estado), Memoria : memoria, Nombre : nombre, Proceso : p2})
+	}
+
+	//fmt.Println(len(arreglo_procesos))
 
 	response.Header().Set("Content-Type","application/json")
 	response.WriteHeader(http.StatusOK)
 
-	type struct_proceso struct {
-		Total float64
-		Consumida float64
-		Porcentaje float64
-	}
 
-	datos := struct_proceso{
-		Total : 4.0,
-		Consumida : 10.0,
-		Porcentaje : 5.0,
+	datos := struct_datos {
+		TotalProcesos : len(arreglo_procesos),
+		TotalEjecucion : cantidadRunning,
+		TotalSuspendidos : cantidadSleeping,
+		TotalDetenidos : cantidadStoped,
+		TotalZombie : cantidadZombie,
+		Procesos : arreglo_procesos,
 	}
 	
 
@@ -180,7 +266,9 @@ func main(){
 
 
 	router.HandleFunc("/", indexPageHandler) //Página principal de la aplicación
-	router.HandleFunc("/datosprocesos", datosProcesosHandler) //Página principal de la aplicación
+	
+	router.HandleFunc("/procesos", procesosPageHandler)
+	router.HandleFunc("/datosprocesos", datosProcesosHandler)
 
 	router.HandleFunc("/memoria", memoriaHandler)
 	router.HandleFunc("/datosmemoria", datosmemoriaHandler)
