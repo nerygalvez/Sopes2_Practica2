@@ -10,6 +10,8 @@ import (
 
 	"github.com/gorilla/mux"
 	//"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
+
+	"io/ioutil"
 )
 
 
@@ -63,25 +65,50 @@ func memoriaHandler(response http.ResponseWriter, request *http.Request) {
 }
 
 /**
+*	Función que lee el archivo que contiene la información de la memoria RAM
+*/
+func leerRAM(ruta string)(contenido string){
+
+	bytesLeidos, err := ioutil.ReadFile(ruta)
+	if err != nil {
+		fmt.Printf("Error leyendo archivo de RAM: %v", err)
+		//Devuelvo un json con valores por defecto
+		return "{Total : -1.0, Consumida : -1.0, Porcentaje : -1.0}"
+	}
+
+	contenido := string(bytesLeidos)
+	//fmt.Printf("El contenido del archivo es: %s", contenido)
+
+	return contenido //Retorno el contenido del archivo
+}
+
+/**
 *	Función que sirve para mandar la información actual de la memoria.
 *	Esta ruta se llama desde la vista de memoria.html
 */
 func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 
+	//Voy a leer el archivo que creó el módulo
+	string_archivo := leerRAM("/proc/memo_201403525")
+
+
+
 	response.Header().Set("Content-Type","application/json")
 	response.WriteHeader(http.StatusOK)
 
 
-	type MEMORIA struct {
+	/*type MEMORIA struct {
 		Total float64
 		Consumida float64
 		Porcentaje float64
-	}
+	}*/
 
 
-	datos := MEMORIA{Total : 100.0, Consumida : 80.0, Porcentaje : 24.3}
+	//datos := MEMORIA{Total : total, Consumida : consumida, Porcentaje : porcentaje_consumo}
 
-	datos_json , _ := json.Marshal(datos)
+	//datos_json , _ := json.Marshal(datos)
+
+	datos_json , _ := json.Marshal(string_archivo)
 
 	response.Write(datos_json)
 
