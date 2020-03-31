@@ -90,11 +90,11 @@
           success: function (json) {
 
             //Actualizo en el HTML
-            $("#total").html(json['TotalProcesos']);
-            $("#running").html(json['TotalEjecucion']);
-            $("#sleeping").html(json['TotalSuspendidos']);
-            $("#stoped").html(json['TotalDetenidos']);
-            $("#zombie").html(json['TotalZombie']);
+            $("#total").html(json['Total']);
+            $("#running").html(json['Ejecucion']);
+            $("#sleeping").html(json['Suspendidos']);
+            $("#stoped").html(json['Detenidos']);
+            $("#zombie").html(json['Zombies']);
 
             var cadena = 	"<tr>"
             					+ "<th>#</th>"
@@ -114,9 +114,11 @@
             					+ "<td>" + (i + 1) + "</td>"
 						    	+ "<td>" + arreglo_procesos[i].PID + "</td>"
                                 + "<td>" + arreglo_procesos[i].Nombre + "</td>"
-						      	+ "<td>" + arreglo_procesos[i].Usuario + "</td>"
+								  + "<td>" + arreglo_procesos[i].Usuario + "</td>"
+								  + "<td>" + arreglo_procesos[i].Ram + "</td>"
+								  + "<td>" + arreglo_procesos[i].Cpu + "</td>"
 						      	+ "<td>" + arreglo_procesos[i].Estado + "</td>"
-						      	+ "<td>" + arreglo_procesos[i].Memoria + "</td>"
+						      	
 						      	+"<td> Eliminar <a href=\"/kill/" +arreglo_procesos[i].PID+ "\" > aqui</a></td>"
 					    	"</tr>";
             }

@@ -64,81 +64,83 @@ func obtenerEstado(caracter string)(estado string){
 	return "Estado indefinido"
 }
 
+
+
+
+
+/**
+*	Función que lee el archivo que contiene la información de la memoria RAM
+*/
+func leerProcesos(ruta string)(cadena_contenido string){
+
+	bytesLeidos, err := ioutil.ReadFile(ruta)
+	if err != nil {
+		fmt.Printf("Error leyendo archivo de Procesos: %v", err)
+		//Devuelvo| un json con valores por defecto
+		return "{\"Procesos\" : [], \"Total\" : -1.0, \"Ejecucion\" : -1.0, \"Suspendidos\" : -1.0, \"Detenidos\" : -1.0, \"Zombies\" : -1.0}"
+	}
+
+	contenido := string(bytesLeidos)
+	//fmt.Printf("El contenido del archivo es: %s", contenido)
+
+	return contenido //Retorno el contenido del archivo
+}
+
 /**
 *	Función que sirve para mandar la información de los procesos que están corriendo actualmente.
 *	Esta ruta se llama desde la vista de procesos.html
 */
-type PROCESO struct{
-	PID int32
-	Usuario string
-	Estado string
-	Memoria float32
-	Nombre string
-	Proceso *process.Process
-}
-type struct_datos struct{
-	TotalProcesos int
-	TotalEjecucion int
-	TotalSuspendidos int
-	TotalDetenidos int
-	TotalZombie int
-	Procesos []PROCESO
-}
 
-var cantidadRunning, cantidadSleeping, cantidadStoped, cantidadZombie int
-
-
-var arreglo_procesos [] PROCESO
 func datosProcesosHandler(response http.ResponseWriter, request *http.Request) {
 
-	//Reinicio mis contadores
-	cantidadRunning = 0
-	cantidadSleeping = 0
-	cantidadStoped = 0
-	cantidadZombie = 0
-
-
-	//var arreglo_procesos [] PROCESO //Defino un arreglo donde voy a poner a todos los procesos
-	arreglo_procesos = nil //Vacío el arreglo
-
-
-	lista_procesos,_ := process.Processes()
-	//fmt.Println(lista_procesos)
-
-
-	for _ , p2 := range lista_procesos{
-		usuario, _ := p2.Username() //Return value could be one of these. R: Running S: Sleep T: Stop I: Idle Z: Zombie W: Wait L: Lock
-		estado, _ := p2.Status() //Return value could be one of these. R: Running S: Sleep T: Stop I: Idle Z: Zombie W: Wait L: Lock
-		memoria, _ := p2.MemoryPercent()
-		nombre , _ := p2.Name()
-		
-		//Agrego el nuevo proceso al arreglo
-		arreglo_procesos = append(arreglo_procesos, PROCESO{PID : p2.Pid, Usuario : usuario, Estado : obtenerEstado(estado), Memoria : memoria, Nombre : nombre, Proceso : p2})
+	type PROCESO struct{
+		PID int32
+		Nombre string
+		Usuario string
+		Ram float64
+		Cpu float64
+		Estado string
+		Hijos [] PROCESO
 	}
 
-	//fmt.Println(len(arreglo_procesos))
+	type struct_datos struct{
+		Procesos []PROCESO `json:"Procesos"`
+		Total int `json:"Total"`
+		Ejecucion int `json:"Ejecucion"`
+		Suspendidos int `json:"Suspendidos"`
+		Detenidos int `json:"Detenidos"`
+		Zombies int `json:"Zombies"`
+	}
+
+	//Voy a leer el archivo que creó el módulo
+	string_archivo := leerProcesos("/proc/procesos_201403525")
+
+
 
 	response.Header().Set("Content-Type","application/json")
 	response.WriteHeader(http.StatusOK)
 
+	//in := `{"firstName":"John","lastName":"Dow"}`
+	bytes := []byte(string_archivo)
 
-	datos := struct_datos {
-		TotalProcesos : len(arreglo_procesos),
-		TotalEjecucion : cantidadRunning,
-		TotalSuspendidos : cantidadSleeping,
-		TotalDetenidos : cantidadStoped,
-		TotalZombie : cantidadZombie,
-		Procesos : arreglo_procesos,
+	var m struct_datos
+	err := json.Unmarshal(bytes, &m)
+	if err != nil {
+		panic(err)
 	}
-	
 
+	//fmt.Printf("%+v", m)
 
-	datos_json , _ := json.Marshal(datos)
+	datos_json , _ := json.Marshal(m)
 
 	response.Write(datos_json)
 
-
 }
+
+
+
+
+
 
 
 /**
@@ -159,7 +161,7 @@ func leerRAM(ruta string)(cadena_contenido string){
 	if err != nil {
 		fmt.Printf("Error leyendo archivo de RAM: %v", err)
 		//Devuelvo un json con valores por defecto
-		return "{Total : -1.0, Consumida : -1.0, Porcentaje : -1.0}"
+		return "{\"Total\" : -1.0, \"Consumida\" : -1.0, \"Porcentaje\" : -1.0}"
 	}
 
 	contenido := string(bytesLeidos)
@@ -189,23 +191,6 @@ func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type","application/json")
 	response.WriteHeader(http.StatusOK)
 
-
-	/*type MEMORIA struct {
-		Total float64
-		Consumida float64
-		Porcentaje float64
-	}*/
-
-
-	//datos := MEMORIA{Total : total, Consumida : consumida, Porcentaje : porcentaje_consumo}
-
-	//datos_json , _ := json.Marshal(datos)
-
-	//datos_json , _ := json.Marshal(string_archivo)
-	
-	
-
-	//Ver si no le tengo que poner comillas al json en el módulo
 	//in := `{"firstName":"John","lastName":"Dow"}`
 	bytes := []byte(string_archivo)
 
