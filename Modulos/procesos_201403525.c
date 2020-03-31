@@ -76,10 +76,10 @@ static void obtener_estado(int estado, char cadena_estado[30]){
             //seq_printf(m, "\"Zombie\"}");
             zombies++;
             strcpy(cadena_estado, "Zombie");
+    }else{
+        zombies++;
+        strcpy(cadena_estado, "Zombie"); //Si no es ninguno devuelvo uno por defecto
     }
-    zombies++;
-    return "Zombie"; //Si no es ninguno devuelvo uno por defecto
-    strcpy(cadena_estado, "Running");
 }
 
 
