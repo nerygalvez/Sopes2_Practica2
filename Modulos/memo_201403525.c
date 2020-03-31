@@ -45,9 +45,9 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
         */
 
         //Aquí voy a escribir el archivo con formato json
-        seq_printf(m, "{\nTotal : %8lu \n", S(i.totalram));
-        seq_printf(m, ", Consumida : %8lu \n", S(i.totalram) - S(i.freeram));
-        seq_printf(m, ", Porcentaje : %8lu \n}",100 - (S(i.freeram)*100/S(i.totalram)));      
+        seq_printf(m, "{\n\"Total\" : %8lu \n", S(i.totalram));
+        seq_printf(m, ", \"Consumida\" : %8lu \n", S(i.totalram) - S(i.freeram));
+        seq_printf(m, ", \"Porcentaje\" : %8lu \n}",100 - (S(i.freeram)*100/S(i.totalram)));      
         
         return 0;
 }

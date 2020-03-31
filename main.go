@@ -86,6 +86,13 @@ func leerRAM(ruta string)(cadena_contenido string){
 *	Función que sirve para mandar la información actual de la memoria.
 *	Esta ruta se llama desde la vista de memoria.html
 */
+
+type MEMORIA struct {
+		Total float64 `json:"Total"`
+		Consumida float64 `json:"Consumida"`
+		Porcentaje float64 `json:"Porcentaje"`
+}
+
 func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 
 	//Voy a leer el archivo que creó el módulo
@@ -108,7 +115,23 @@ func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 
 	//datos_json , _ := json.Marshal(datos)
 
-	datos_json , _ := json.Marshal(string_archivo)
+	//datos_json , _ := json.Marshal(string_archivo)
+	
+	
+
+	//Ver si no le tengo que poner comillas al json en el módulo
+	//in := `{"firstName":"John","lastName":"Dow"}`
+	bytes := []byte(string_archivo)
+
+	var m MEMORIA
+	err := json.Unmarshal(bytes, &m)
+	if err != nil {
+		panic(err)
+	}
+
+	//fmt.Printf("%+v", m)
+
+	datos_json , _ := json.Marshal(m)
 
 	response.Write(datos_json)
 
