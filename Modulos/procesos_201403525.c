@@ -17,8 +17,6 @@
 *   #define EXIT_ZOMBIE		        32
 */
 
-#include <stdio.h>
-#include <string.h>
 #include <linux/module.h> 
 
 #include <linux/kernel.h>
