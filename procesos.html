@@ -103,7 +103,6 @@
 							    +"<th>Usuario</th>"
 							    +"<th>Estado</th>"
 								+"<th>% RAM</th>"
-								+"<th>% CPU</th>"
 							    +"<th>Kill</th>"
 					    	"</tr>";
 
@@ -118,7 +117,6 @@
 								+ "<td>" + arreglo_procesos[i].Usuario + "</td>"
 								+ "<td>" + arreglo_procesos[i].Estado + "</td>"
 								+ "<td>" + arreglo_procesos[i].Ram + "</td>"
-								+ "<td>" + arreglo_procesos[i].Cpu + "</td>"
 						      	
 						      	+"<td> Eliminar <a href=\"/kill/" +arreglo_procesos[i].PID+ "\" > aqui</a></td>"
 					    	"</tr>";
@@ -136,7 +134,6 @@
 									+ "<td>" + arreglo_procesos_hijos[j].Usuario + "</td>"
 									+ "<td>" + arreglo_procesos_hijos[j].Estado + "</td>"
 									+ "<td>" + arreglo_procesos_hijos[j].Ram + "</td>"
-									+ "<td>" + arreglo_procesos_hijos[j].Cpu + "</td>"
 									
 									+"<td> Eliminar <a href=\"/kill/" +arreglo_procesos_hijos[j].PID+ "\" > aqui</a></td>"
 								"</tr>";

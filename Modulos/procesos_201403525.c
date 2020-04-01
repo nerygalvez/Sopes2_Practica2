@@ -88,8 +88,13 @@ struct task_struct *task_child;
 struct list_head *list;
 unsigned long size; 
 
+struct sysinfo i;
+
 static int proc_llenar_archivo(struct seq_file *m, void *v) {
-    
+    #define S(x) ((x) << (PAGE_SHIFT -10))
+	si_meminfo(&i);
+
+
     //Reinicio los contadores
     contador_procesos = 0;
     ejecucion = 0, suspendidos = 0, detenidos = 0, zombies = 0;
@@ -117,7 +122,7 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
         char cadena_estado[30] = "";
         obtener_estado(task->state, cadena_estado);
         seq_printf(m, "\t\t{\"PID\":%d , \"Nombre\":\"%s\" , \"Usuario\":%d, \"Ram\":%llu , \"Cpu\":%d , \"Estado\":\"%s\"" ,
-                   task->pid, task->comm, task->cred->uid, size, task->cpuset_mem_spread_rotor, cadena_estado);
+                   task->pid, task->comm, task->cred->uid, size*100/S(i.totalram), task->cpuset_mem_spread_rotor, cadena_estado);
 
         //Ahora veo los hijos del proceso
         int contador_hijos = 0;
@@ -142,7 +147,7 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
 
             obtener_estado(task_child->state, cadena_estado);
             seq_printf(m, "\t\t\t\t{\"PID\":%d , \"Nombre\":\"%s\" , \"Usuario\":%d, \"Ram\":%llu , \"Cpu\":%d , \"Estado\":\"%s\"" ,
-                   task_child->pid, task_child->comm, task_child->cred->uid, size, task_child->cpuset_mem_spread_rotor, cadena_estado);
+                   task_child->pid, task_child->comm, task_child->cred->uid, size*100/S(i.totalram), task_child->cpuset_mem_spread_rotor, cadena_estado);
 
             seq_printf(m, ",\"Hijos\" : [] }"); //fin del proceso hijo
 
