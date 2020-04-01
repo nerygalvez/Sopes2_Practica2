@@ -1,6 +1,6 @@
-*.ko
-*.mod.c
-*.mod.o
-*.o
-*.symvers
-*.order
+Modulos/*.ko
+Modulos/*.mod.c
+Modulos/*.mod.o
+Modulos/*.o
+Modulos/*.symvers
+Modulos/*.order

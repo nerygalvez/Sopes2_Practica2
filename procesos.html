@@ -122,6 +122,34 @@
 						      	
 						      	+"<td> Eliminar <a href=\"/kill/" +arreglo_procesos[i].PID+ "\" > aqui</a></td>"
 					    	"</tr>";
+
+
+				
+				var arreglo_procesos_hijos = arreglo_procesos[i].Hijos;
+
+				for (var j = 0; j < arreglo_procesos_hijos.length; j++) {
+					
+					cadena += "<tr>"
+									+ "<td>" + (i+j + 1) + "</td>"
+									+ "<td>" + arreglo_procesos_hijos[j].PID + "</td>"
+									+ "<td>" + arreglo_procesos_hijos[j].Nombre + "</td>"
+									+ "<td>" + arreglo_procesos_hijos[j].Usuario + "</td>"
+									+ "<td>" + arreglo_procesos_hijos[j].Estado + "</td>"
+									+ "<td>" + arreglo_procesos_hijos[j].Ram + "</td>"
+									+ "<td>" + arreglo_procesos_hijos[j].Cpu + "</td>"
+									
+									+"<td> Eliminar <a href=\"/kill/" +arreglo_procesos_hijos[j].PID+ "\" > aqui</a></td>"
+								"</tr>";
+
+					
+				}
+
+
+
+
+
+
+				
             }
 
 			$("#tabla_datos").html(cadena);            
