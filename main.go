@@ -176,6 +176,30 @@ func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 }
 
 
+
+
+
+
+
+/**
+*	Función que lee el archivo que contiene la información del CPU
+*/
+func leerCPU(ruta string)(cadena_contenido string){
+
+	bytesLeidos, err := ioutil.ReadFile(ruta)
+	if err != nil {
+		fmt.Printf("Error leyendo archivo del CPU: %v", err)
+		//Devuelvo un json con valores por defecto
+		return "{\"Total\" : -1.0, \"Utilizado\" : -1.0, \"Libre\" : -1.0, \"Promedio\" : -1.0}"
+	}
+
+	contenido := string(bytesLeidos)
+	//fmt.Printf("El contenido del archivo es: %s", contenido)
+
+	return contenido //Retorno el contenido del archivo
+}
+
+
 /**
 *	Función que sirve para mostrar el monitor de CPU
 */
@@ -189,20 +213,34 @@ func CPUHandler(response http.ResponseWriter, request *http.Request) {
 *	Función que sirve para mandar la información actual del CPU.
 *	Esta ruta se llama desde la vista de memoria.html
 */
+type CPU struct {
+	Total float64 `json:"Total"`
+	Utilizado float64 `json:"Utilizado"`
+	Libre float64 `json:"Libre"`
+	Promedio float64 `json:"Promedio"`
+}
 func datosCPUHandler(response http.ResponseWriter, request *http.Request) {
+
+	//Voy a leer el archivo que creó el módulo
+	string_archivo := leerRAM("/proc/cpu_201403525")
+
+
 
 	response.Header().Set("Content-Type","application/json")
 	response.WriteHeader(http.StatusOK)
 
+	//in := `{"firstName":"John","lastName":"Dow"}`
+	bytes := []byte(string_archivo)
 
-	type CPU struct {
-		Porcentaje float64
+	var m CPU
+	err := json.Unmarshal(bytes, &m)
+	if err != nil {
+		panic(err)
 	}
 
+	//fmt.Printf("%+v", m)
 
-	datos := CPU{Porcentaje : 30}
-
-	datos_json , _ := json.Marshal(datos)
+	datos_json , _ := json.Marshal(m)
 
 	response.Write(datos_json)
 

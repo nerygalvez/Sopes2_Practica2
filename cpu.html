@@ -100,7 +100,7 @@
           success: function (json) {
 
             //Actualizo en el HTML
-            $("#porcentaje").html(json['Porcentaje']);
+            $("#porcentaje").html(json['Promedio']);
 
 
             var options = {
@@ -122,7 +122,7 @@
               [arreglo[8][0], arreglo[8][1]],     //[3]
               [arreglo[9][0], arreglo[9][1]],     //[4]
               [arreglo[10][0], arreglo[10][1]],   //[4]
-              [contador, json['Porcentaje']]      //[5]
+              [contador, json['Promedio']]      //[5]
             ];
           
 
@@ -151,7 +151,6 @@
   <a href="/procesos">Procesos</a>
   <a href="/cpu">CPU</a>
   <a href="/memoria">Memoria RAM</a>
-  <a href="/logout">Cerrar Sesión</a>
 
 
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
