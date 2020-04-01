@@ -9,7 +9,7 @@ import (
 	//"strconv"
 
 	"github.com/gorilla/mux"
-	//"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
+	"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
 
 	"io/ioutil"
 )
@@ -248,6 +248,61 @@ func datosCPUHandler(response http.ResponseWriter, request *http.Request) {
 }
 
 
+/**
+*	Con esto voy a hacer el kill del proceso
+*/
+var validPath = regexp.MustCompile("^/(kill|save|view)/([a-zA-Z0-9]+)$")
+
+func killHandler(w http.ResponseWriter, r *http.Request, pid string) {
+
+	fmt.Println("Se quiere matar el proceso: ", pid)
+
+	//Obtengo los procesos
+	lista_procesos,_ := process.Processes()
+
+	for _ , p2 := range lista_procesos{
+
+		if string(strconv.Itoa(int(p2.Pid))) == pid{ //Si encuentro el proceso que se quiere matar
+			fmt.Println("Se encontró el proceso: ", pid)
+			p2.Kill()
+			break
+		}
+		
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+
+}
+
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		//fmt.Println(validPath.FindStringSubmatch(r.URL.Path))
+		m := validPath.FindStringSubmatch(r.URL.Path)
+
+		if m == nil {
+
+			http.NotFound(w, r)
+
+			return
+
+		}
+
+		fn(w, r, m[2])
+
+	}
+
+}
+
+
+
+
+
+
+
+
+
 
 var router = mux.NewRouter()
 
@@ -266,7 +321,7 @@ func main(){
 	router.HandleFunc("/datoscpu", datosCPUHandler)
 
 	////router.HandleFunc("/kill/", makeHandler(killHandler))
-	//http.HandleFunc("/kill/", makeHandler(killHandler))
+	http.HandleFunc("/kill/", makeHandler(killHandler))
 
 
 	http.Handle("/", router)
