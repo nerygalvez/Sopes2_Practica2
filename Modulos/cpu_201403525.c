@@ -1,3 +1,11 @@
+/**
+*
+*	Creando el modulo de cpu
+*
+*/
+
+
+
 /************************************************
 * SE UTILIZÓ CODIGO DE REFERENCIA DE GITHUB Y STACKOVERFLOW
 * https://github.com/01org/KVMGT-kernel/blob/master/fs/proc/stat.c
@@ -39,7 +47,8 @@
 #include <linux/slab.h>
 #include <linux/time.h>
 #include <linux/irqnr.h>
-#include <linux/cputime.h>
+//#include <linux/cputime.h>
+#include <linux/cpuidle.h>
 #include <linux/tick.h>
 #include <asm/apic.h>
 
@@ -49,6 +58,24 @@
 #include <linux/seq_file.h>
 #include <linux/cpufreq.h>
 #include <linux/delay.h>
+
+
+/////////////////////////
+#include <linux/list.h>
+#include <linux/types.h>
+#include <asm/uaccess.h> 
+#include <linux/sched/signal.h>
+ 
+
+#define FileProc "cpu_201403525"
+#define Carne "201403525"
+#define Nombre "Nery Gonzalo Galvez Gomez"
+#define SO "Ubuntu 18.04.4 LTS"
+#define Curso "Sistemas Operativos 2"
+
+
+
+
 
 #ifdef arch_idle_time
 
@@ -79,7 +106,8 @@ static u64 get_idle_time(int cpu)
 		/* !NO_HZ or cpu offline so we can rely on cpustat.idle */
 		idle = kcpustat_cpu(cpu).cpustat[CPUTIME_IDLE];
 	else
-		idle = usecs_to_cputime64(idle_time);
+		//idle = usecs_to_cputime64(idle_time);
+		idle = nsecs_to_jiffies64(idle_time);
 
 	return idle;
 }
@@ -94,16 +122,23 @@ static u64 get_iowait_time(int cpu)
 		/* !NO_HZ or cpu offline so we can rely on cpustat.iowait */
 		iowait = kcpustat_cpu(cpu).cpustat[CPUTIME_IOWAIT];
 	else
-		iowait = usecs_to_cputime64(iowait_time);
+		//iowait = usecs_to_cputime64(iowait_time);
+		iowait = nsecs_to_jiffies64(iowait_time);
 
 	return iowait;
 }
 
 #endif
 
-static int meminfo_proc_show(struct seq_file *m, void *v)
-{
-	/**
+
+
+
+
+
+
+
+static int proc_llenar_archivo(struct seq_file *m, void *v) {
+        /**
 	 * DECLARAR VARIABLES
 	 * */
 	int i;
@@ -134,10 +169,16 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	}
 	//El total del cpu es la suma de todos los atributos
 	sum += user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice;
-	//crear el json, al ser de tipo u64, se debe utilizar cputime64_to_clock_t
-	seq_printf(m, "{");
+
+        //Creo el json con los datos
+        seq_printf(m, "{ \"Total\" : %lf , \"Utilizado\" : %lf , \"Libre\" : %lf , \"Promedio\" : %lf }"
+        , jiffies_64_to_clock_t(sum), jiffies_64_to_clock_t(sum - idle), jiffies_64_to_clock_t(idle), jiffies_64_to_clock_t(((sum - idle) * 100 / sum)));
+	
+        //crear el json, al ser de tipo u64, se debe utilizar cputime64_to_clock_t
+	/*
+        seq_printf(m, "{");
 	seq_printf(m, "\"cpu\":");
-	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(sum));
+	seq_put_decimal1_ull(m, ' ', cputime64_to_clock_t(sum));
 	seq_printf(m, ",\"used\":");
 	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(sum - idle));
 	seq_printf(m, ",\"free\":");
@@ -145,31 +186,61 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	seq_printf(m, ",\"average\":");
 	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(((sum - idle) * 100 / sum)));
 	seq_printf(m, "}");
+        */
 	return 0;
 }
 
-static void __exit final(void) //Salida de modulo
-{
-	printk(KERN_INFO "Cleaning Up.\n");
+
+static int proc_al_abrir_archivo(struct inode *inode, struct  file *file) {
+  return single_open(file, proc_llenar_archivo, NULL);
 }
 
-static int meminfo_proc_open(struct inode *inode, struct file *file)
+static struct file_operations myops =
 {
-	return single_open(file, meminfo_proc_show, NULL);
-}
-
-static const struct file_operations meminfo_proc_fops = {
-	.open = meminfo_proc_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release,
+        .owner = THIS_MODULE,
+        .open = proc_al_abrir_archivo,
+        .read = seq_read,
+        .llseek = seq_lseek,
+        .release = single_release,
 };
-static int __init inicio(void) //Escribe archivo en /proc
-{
-	proc_create("m_cpu_201443728", 0, NULL, &meminfo_proc_fops);
-	return 0;
-}
-module_init(inicio);
-module_exit(final);
-MODULE_LICENSE("GPL");
 
+
+
+/**
+*	Defino que es lo que se va a hacer al cargar el modulo
+*/
+static int iniciar(void)
+{
+	proc_create(FileProc,0,NULL,&myops);
+    	printk(KERN_INFO "Carne: %s\n", Carne);
+
+        /*
+         * Si no se devuelve 0 significa que initmodule ha fallado y no ha podido cargarse.
+         */
+        return 0;
+}
+
+/**
+*	Defino que es lo que se va a hacer al terminar el modulo
+*/
+static void terminar(void)
+{
+	remove_proc_entry(FileProc,NULL);
+  	printk(KERN_INFO "Curso: %s\n", Curso);
+}
+
+
+
+/*
+ * Indicamos cuales son las funciones de inicio y fin
+ */
+module_init(iniciar);
+module_exit(terminar);
+
+/*
+ * Documentacion del modulo
+ */
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Nery Galvez - 201403525");
+MODULE_DESCRIPTION("Modulo con informacion del CPU");
+MODULE_SUPPORTED_DEVICE("TODOS");
