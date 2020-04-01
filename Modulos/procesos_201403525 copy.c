@@ -104,20 +104,10 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
             seq_printf(m, ",\n");
         
         //Inicio del proceso
-        //Con este if compruebo si el proceso tiene el scruct mm que sera para obtener la memoria del proceso
-        if(task->mm){
-            down_read(&task->mm->mmap_sem); 
-            size = (task->mm->mmap->vm_end - task->mm->mmap->vm_start );            
-            up_read(&task->mm->mmap_sem);
-        }else{
-            size=0;
-        }
-
-
         char cadena_estado[30] = "";
         obtener_estado(task->state, cadena_estado);
         seq_printf(m, "\t\t{\"PID\":%d , \"Nombre\":\"%s\" , \"Usuario\":%d, \"Ram\":%llu , \"Cpu\":%d , \"Estado\":\"%s\"" ,
-                   task->pid, task->comm, task->cred->uid, size, task->cpuset_mem_spread_rotor, cadena_estado);
+                   task->pid, task->comm, task->cred->uid, task->acct_vm_mem1, task->cpuset_mem_spread_rotor, cadena_estado);
 
         //Ahora veo los hijos del proceso
         int contador_hijos = 0;
@@ -130,19 +120,9 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
             task_child = list_entry(list, struct task_struct, sibling);
 
             //Inicio del proceso
-            //Con este if compruebo si el proceso tiene el scruct mm que sera para obtener la memoria del proceso
-		    if(task_child->mm){
-		        down_read(&task_child->mm->mmap_sem); 
-		        size = (task_child->mm->mmap->vm_end - task_child->mm->mmap->vm_start );            
-		        up_read(&task_child->mm->mmap_sem);
-	        }else{
-		        size=0;
-	        
-            }
-
             obtener_estado(task_child->state, cadena_estado);
             seq_printf(m, "\t\t\t\t{\"PID\":%d , \"Nombre\":\"%s\" , \"Usuario\":%d, \"Ram\":%llu , \"Cpu\":%d , \"Estado\":\"%s\"" ,
-                   task_child->pid, task_child->comm, task_child->cred->uid, size, task_child->cpuset_mem_spread_rotor, cadena_estado);
+                   task_child->pid, task_child->comm, task_child->cred->uid, task_child->acct_vm_mem1, task_child->cpuset_mem_spread_rotor, cadena_estado);
 
             seq_printf(m, ",\"Hijos\" : [] }"); //fin del proceso hijo
 
