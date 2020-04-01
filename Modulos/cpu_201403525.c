@@ -171,7 +171,7 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
 	sum += user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice;
 
         //Creo el json con los datos
-        seq_printf(m, "{ \"Total\" : %lf , \"Utilizado\" : %lf , \"Libre\" : %lf , \"Promedio\" : %lf }"
+        seq_printf(m, "{ \"Total\" : %lld , \"Utilizado\" : %lld , \"Libre\" : %lld , \"Promedio\" : %lld }"
         , jiffies_64_to_clock_t(sum), jiffies_64_to_clock_t(sum - idle), jiffies_64_to_clock_t(idle), jiffies_64_to_clock_t(((sum - idle) * 100 / sum)));
 	
         //crear el json, al ser de tipo u64, se debe utilizar cputime64_to_clock_t
