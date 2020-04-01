@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"encoding/json"
 	//"math"
-	//"regexp"
-	//"strconv"
+	"regexp"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/shirou/gopsutil/process" //Con esto voy a hacer el kill
