@@ -108,11 +108,11 @@
 					    	"</tr>";
 
 			var arreglo_procesos = json['Procesos'];
-
+			var contador = 1;
             for (var i = 0; i < arreglo_procesos.length; i++) {
             	
             	cadena += "<tr>"
-            					+ "<td>" + (i + 1) + "</td>"
+            					+ "<td>" + (contador++) + "</td>"
 						    	+ "<td>" + arreglo_procesos[i].PID + "</td>"
                                 + "<td>" + arreglo_procesos[i].Nombre + "</td>"
 								+ "<td>" + arreglo_procesos[i].Usuario + "</td>"
@@ -130,7 +130,7 @@
 				for (var j = 0; j < arreglo_procesos_hijos.length; j++) {
 					
 					cadena += "<tr>"
-									+ "<td>" + (i+j + 1) + "</td>"
+									+ "<td>" + (contador++) + "</td>"
 									+ "<td>" + arreglo_procesos_hijos[j].PID + "</td>"
 									+ "<td>" + arreglo_procesos_hijos[j].Nombre + "</td>"
 									+ "<td>" + arreglo_procesos_hijos[j].Usuario + "</td>"
