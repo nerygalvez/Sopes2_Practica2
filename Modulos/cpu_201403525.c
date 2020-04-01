@@ -1,11 +1,3 @@
-/**
-*
-*	Creando el modulo de cpu
-*
-*/
-
-
-
 /************************************************
 * SE UTILIZÓ CODIGO DE REFERENCIA DE GITHUB Y STACKOVERFLOW
 * https://github.com/01org/KVMGT-kernel/blob/master/fs/proc/stat.c
@@ -58,24 +50,6 @@
 #include <linux/cpufreq.h>
 #include <linux/delay.h>
 
-
-/////////////////////////
-#include <linux/list.h>
-#include <linux/types.h>
-#include <asm/uaccess.h> 
-#include <linux/sched/signal.h>
- 
-
-#define FileProc "cpu_201403525"
-#define Carne "201403525"
-#define Nombre "Nery Gonzalo Galvez Gomez"
-#define SO "Ubuntu 18.04.4 LTS"
-#define Curso "Sistemas Operativos 2"
-
-
-
-
-
 #ifdef arch_idle_time
 
 static cputime64_t get_idle_time(int cpu)
@@ -127,15 +101,9 @@ static u64 get_iowait_time(int cpu)
 
 #endif
 
-
-
-
-
-
-
-
-static int proc_llenar_archivo(struct seq_file *m, void *v) {
-        /**
+static int meminfo_proc_show(struct seq_file *m, void *v)
+{
+	/**
 	 * DECLARAR VARIABLES
 	 * */
 	int i;
@@ -166,16 +134,10 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
 	}
 	//El total del cpu es la suma de todos los atributos
 	sum += user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice;
-
-        //Creo el json con los datos
-        seq_printf(m, "{ \"Total\" : %lf , \"Utilizado\" : %lf , \"Libre\" : %lf , \"Promedio\" : %lf }"
-        , cputime64_to_clock_t(sum), cputime64_to_clock_t(sum - idle), cputime64_to_clock_t(idle), cputime64_to_clock_t(((sum - idle) * 100 / sum)));
-	
-        //crear el json, al ser de tipo u64, se debe utilizar cputime64_to_clock_t
-	/*
-        seq_printf(m, "{");
+	//crear el json, al ser de tipo u64, se debe utilizar cputime64_to_clock_t
+	seq_printf(m, "{");
 	seq_printf(m, "\"cpu\":");
-	seq_put_decimal1_ull(m, ' ', cputime64_to_clock_t(sum));
+	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(sum));
 	seq_printf(m, ",\"used\":");
 	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(sum - idle));
 	seq_printf(m, ",\"free\":");
@@ -183,61 +145,31 @@ static int proc_llenar_archivo(struct seq_file *m, void *v) {
 	seq_printf(m, ",\"average\":");
 	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(((sum - idle) * 100 / sum)));
 	seq_printf(m, "}");
-        */
 	return 0;
 }
 
-
-static int proc_al_abrir_archivo(struct inode *inode, struct  file *file) {
-  return single_open(file, proc_llenar_archivo, NULL);
+static void __exit final(void) //Salida de modulo
+{
+	printk(KERN_INFO "Cleaning Up.\n");
 }
 
-static struct file_operations myops =
+static int meminfo_proc_open(struct inode *inode, struct file *file)
 {
-        .owner = THIS_MODULE,
-        .open = proc_al_abrir_archivo,
-        .read = seq_read,
-        .llseek = seq_lseek,
-        .release = single_release,
+	return single_open(file, meminfo_proc_show, NULL);
+}
+
+static const struct file_operations meminfo_proc_fops = {
+	.open = meminfo_proc_open,
+	.read = seq_read,
+	.llseek = seq_lseek,
+	.release = single_release,
 };
-
-
-
-/**
-*	Defino que es lo que se va a hacer al cargar el modulo
-*/
-static int iniciar(void)
+static int __init inicio(void) //Escribe archivo en /proc
 {
-	proc_create(FileProc,0,NULL,&myops);
-    	printk(KERN_INFO "Carne: %s\n", Carne);
-
-        /*
-         * Si no se devuelve 0 significa que initmodule ha fallado y no ha podido cargarse.
-         */
-        return 0;
+	proc_create("m_cpu_201443728", 0, NULL, &meminfo_proc_fops);
+	return 0;
 }
-
-/**
-*	Defino que es lo que se va a hacer al terminar el modulo
-*/
-static void terminar(void)
-{
-	remove_proc_entry(FileProc,NULL);
-  	printk(KERN_INFO "Curso: %s\n", Curso);
-}
-
-
-
-/*
- * Indicamos cuales son las funciones de inicio y fin
- */
-module_init(iniciar);
-module_exit(terminar);
-
-/*
- * Documentacion del modulo
- */
+module_init(inicio);
+module_exit(final);
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Nery Galvez - 201403525");
-MODULE_DESCRIPTION("Modulo con informacion del CPU");
-MODULE_SUPPORTED_DEVICE("TODOS");
+
