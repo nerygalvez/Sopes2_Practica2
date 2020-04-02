@@ -21,7 +21,7 @@
 #include <asm/uaccess.h> 
 #include <linux/hugetlb.h>
 
-#define FileProc "memo_201403525"
+#define FileProc "201403525_memo"
 #define Carne "201403525"
 #define Nombre "Nery Gonzalo Galvez Gomez"
 #define SO "Ubuntu 18.04.4 LTS"

@@ -67,7 +67,7 @@
 #include <linux/sched/signal.h>
  
 
-#define FileProc "cpu_201403525"
+#define FileProc "201403525_cpu"
 #define Carne "201403525"
 #define Nombre "Nery Gonzalo Galvez Gomez"
 #define SO "Ubuntu 18.04.4 LTS"

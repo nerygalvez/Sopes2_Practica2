@@ -79,7 +79,7 @@ func datosProcesosHandler(response http.ResponseWriter, request *http.Request) {
 	}
 
 	//Voy a leer el archivo que creó el módulo
-	string_archivo := leerProcesos("/proc/procesos_201403525")
+	string_archivo := leerProcesos("/proc/201403525_procesos")
 
 
 
@@ -150,7 +150,7 @@ type MEMORIA struct {
 func datosmemoriaHandler(response http.ResponseWriter, request *http.Request) {
 
 	//Voy a leer el archivo que creó el módulo
-	string_archivo := leerRAM("/proc/memo_201403525")
+	string_archivo := leerRAM("/proc/201403525_memo")
 
 
 
@@ -222,7 +222,7 @@ type CPU struct {
 func datosCPUHandler(response http.ResponseWriter, request *http.Request) {
 
 	//Voy a leer el archivo que creó el módulo
-	string_archivo := leerRAM("/proc/cpu_201403525")
+	string_archivo := leerRAM("/proc/201403525_cpu")
 
 
 
