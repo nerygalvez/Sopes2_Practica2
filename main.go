@@ -308,7 +308,6 @@ var router = mux.NewRouter()
 
 func main(){
 
-
 	router.HandleFunc("/", indexPageHandler) //Página principal de la aplicación
 	
 	router.HandleFunc("/procesos", procesosPageHandler)

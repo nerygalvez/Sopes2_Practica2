@@ -34,15 +34,6 @@ struct sysinfo i;
 static int proc_llenar_archivo(struct seq_file *m, void *v) {
 	#define S(x) ((x) << (PAGE_SHIFT -10))
 	si_meminfo(&i);
-        /*
-        seq_printf(m, "Carne: %s\n", Carne);
-        seq_printf(m, "Nombre: %s\n", Nombre);
-        seq_printf(m, "Sistema operativo: %s\n", SO);
-        seq_printf(m, "Curso: %s\n", Curso);
-        seq_printf(m, "Memoria total: %8lu KB\n",S(i.totalram));
-        seq_printf(m, "Memoria libre: %8lu KB\n",S(i.freeram));
-        seq_printf(m, "Porcentaje de memoria utilizada: %8lu %%\n",S(i.freeram)*100/S(i.totalram));        
-        */
 
         //Aquí voy a escribir el archivo con formato json
         seq_printf(m, "{\n\"Total\" : %8lu \n", S(i.totalram)/1000);
